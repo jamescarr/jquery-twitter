@@ -6,12 +6,13 @@ function(){
         
         try{
                 jQuery.searchTwitter = function(term, data, callback){
-                        var reqUrl = searchUrl + "?q="+term;
+                        var reqUrl = searchUrl + "?q="+term + "&callback=__GLOBAL_TWITTER_RESULT_CALLBACK";
                         if(jQuery.isFunction(data){
                                 callback = data;
                         };
                         jQuery().bind('stwitter_resultsRecvd', callback);        
                         jQuery.events.trigger('stwitter_searchSubmit', {url: reqUrl});
+                        jQuery('head').append('<script type="text/javascript" src="'+url+'"></script>');
 
                 };
         }catch(e){
