@@ -8,15 +8,15 @@
  <body>
   <script language="javascript">
     $(function(){
-		$().bind('stwitter_searchSubmit', function(e, data){
-			alert(data.url);
-		});
-		$.searchTwitter('foobar', {rpp:222}, function(e){
-			for(var k in e.results){
-				$('body').append("<p>"+k+":"+e.results[k]+"</p>")
-				
-			}
-		});
+		var last_id = 0;
+		setInterval(function(){
+			$.searchTwitter('wtf', {rpp:2, since_id: last_id, page: 1}, function(resp){
+				$(resp.results).each(function(){
+					$('body').prepend('<p>'+this.text+'</p>');
+					last_id = this.id;
+				});
+			});
+		}, 5000);
 			
 	});
   </script>
