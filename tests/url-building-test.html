@@ -7,12 +7,18 @@
  </head>
  <body>
   <script language="javascript">
-    function testUrlHasQueryAppendedToIt(){
+    $(function(){
 		$().bind('stwitter_searchSubmit', function(e, data){
 			alert(data.url);
 		});
-		$.searchTwitter('foobar', function(e){});
-	}
+		$.searchTwitter('foobar', {rpp:222}, function(e){
+			for(var k in e.results){
+				$('body').append("<p>"+k+":"+e.results[k]+"</p>")
+				
+			}
+		});
+			
+	});
   </script>
  </body>
 </html>

@@ -1,29 +1,27 @@
-function __GLOBAL_TWITTER_RESULT_CALLBACK(resp){
-    var event = jQuery.Event('stwitter_resultsRecvd');
-    event.results = resp;
-    jQuery.event.trigger(event);
-}
+
 (function(){
     var searchUrl = "http://search.twitter.com/search.json";
-    
+    var specialKeys = ['live'];
     try {
         jQuery.searchTwitter = function(term, data, callback){
-            var reqUrl = searchUrl + "?q=" + term +
-            "&callback=__GLOBAL_TWITTER_RESULT_CALLBACK";
+            var reqUrl = searchUrl + "?q=" + term + "&callback=?";
             if (jQuery.isFunction(data)) {
                 callback = data;
-            }else{
-                for(var key in data){
-                    url += key + "=" + data[key];
-                }
+                data = {};
             }
+            for(var key in data){
+            	if(key != 'live')
+            		reqUrl += "&"+key + "=" + data[key];
+            }
+        
 
             jQuery().one('stwitter_resultsRecvd', callback);
-            jQuery.event.trigger('stwitter_searchSubmit', {
-                'url': reqUrl
+            jQuery.event.trigger('stwitter_searchSubmit', {'url': reqUrl});
+            jQuery.getJSON(reqUrl, function(result){
+            	var event = jQuery.Event('stwitter_resultsRecvd');
+                event.results = result;
+                jQuery.event.trigger(event);
             });
-            jQuery('head').append('<script type="text/javascript" src="' + reqUrl + '"></script>');
-            
         };
     } 
     catch (e) {
