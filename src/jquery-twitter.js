@@ -1,5 +1,7 @@
+
 ( function() {
-	window.jqTwitter = {};
+	var searches = {};
+	var cache = {};
 	var searchUrl = "http://search.twitter.com/search.json";
 	
 	function buildUrl(term, data){
@@ -11,8 +13,21 @@
 		return reqUrl;
 	}
 	try {
-		jQuery.searchTwitter = function(term, data, callback) {
-			var reqUrl = searchUrl + "?q=" + term + "&callback=?";
+		jQuery.twitter = {};
+		jQuery.twitter.liveSearch = function(term, data, callback){
+			searches['last_id'+term] = 0;
+			setInterval(function(){
+				data.since_id = searches['last_id'+term];
+				jQuery.twitter.search(term, data, function(resp){
+					var results = resp.results;
+					if(results.length > 0){
+						searches['last_id'+term] = results[0].id+1;
+						callback(resp);
+					}
+				});
+			}, 5000);
+		};
+		jQuery.twitter.search = function(term, data, callback) {
 			if (jQuery.isFunction(data)) {
 				callback = data;
 				data = {};
