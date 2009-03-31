@@ -8,14 +8,26 @@
  <body>
   <script language="javascript">
     $(function(){
-		$.twitter.liveSearch('wtf', {rpp:2}, function(resp){
+		$.twitter.liveSearch('ning', {rpp:2}, function(resp){
 			$(resp.results).each(function(){
-				$('body').prepend('<p>'+this.text+'</p>');
+				$('#box1').prepend('<p>'+this.text+'</p>');
+			});
+		});
+		$.twitter.liveSearch('facebook', {rpp:2}, function(resp){
+			$(resp.results).each(function(){
+				$('#box2').prepend('<p>'+this.text+'</p>');
 			});
 		});
 			
 	});
   </script>
+  
+  <div id="box1" style="float: left; width: 40%; border: 1px solid #000;">
+  	
+  </div>
+  <div id="box2" style="float: right; width: 40%; border: 1px solid #000;">
+  	
+  </div>
  </body>
 </html>
 
