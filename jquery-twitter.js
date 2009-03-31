@@ -1,21 +1,23 @@
 function __GLOBAL_TWITTER_RESULT_CALLBACK (resp){
-        jQuery.events.trigger('stwitter_resultsRecvd', {results: resp});        
+        var event = jQuery.Event('stwitter_resultsRecvd');
+        event.results = resp;
+        jQuery.event.trigger(event);        
 }
-function(){
+(function(){
         var searchUrl = "http://search.twitter.com/search.json";
         
         try{
-                jQuery.searchTwitter = function(term, data, callback){
-                        var reqUrl = searchUrl + "?q="+term + "&callback=__GLOBAL_TWITTER_RESULT_CALLBACK";
-                        if(jQuery.isFunction(data){
-                                callback = data;
-                        };
+            jQuery.searchTwitter = function(term, data, callback){
+            var reqUrl = searchUrl + "?q="+term + "&callback=__GLOBAL_TWITTER_RESULT_CALLBACK";
+            if(jQuery.isFunction(data)){
+                callback = data;
+            };
                         jQuery().bind('stwitter_resultsRecvd', callback);        
-                        jQuery.events.trigger('stwitter_searchSubmit', {url: reqUrl});
-                        jQuery('head').append('<script type="text/javascript" src="'+url+'"></script>');
+                        jQuery.event.trigger('stwitter_searchSubmit', {'url': reqUrl});
+                        jQuery('head').append('<script type="text/javascript" src="'+reqUrl+'"></script>');
 
-                };
+               };
         }catch(e){
                 throw new Exception('jQuery is not defined!');
         }
-});
+})();
