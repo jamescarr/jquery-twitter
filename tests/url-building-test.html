@@ -13,9 +13,14 @@
 				$('#box1').prepend('<p>'+this.text+'</p>');
 			});
 		});
+		var count = 0;
 		$.twitter.liveSearch('facebook', {rpp:2}, function(resp){
+			if(count++ > 10){
+				this.stop();
+			}
 			$(resp.results).each(function(){
 				$('#box2').prepend('<p>'+this.text+'</p>');
+				
 			});
 		});
 			
