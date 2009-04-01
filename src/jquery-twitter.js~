@@ -42,7 +42,7 @@
                 };
                 $(['current', 'daily', 'weekly']).each(function(){
                         var type = this;
-                        jQuery.twitter[this] = function(callback){jQuery.twitter.trends(type, callback);};
+                        jQuery.twitter[this] = function(date,callback){jQuery.twitter.trends(type, date, callback);};
                 });
 		jQuery.twitter.liveSearch = function(term, data, callback){
 			var control = new Controller();

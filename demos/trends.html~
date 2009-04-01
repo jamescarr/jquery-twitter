@@ -1,0 +1,71 @@
+<html>
+ <head>
+  <title>Test Page for URL Building</title>
+  <script language="javascript" src="../lib/jsUnitCore.js"></script>
+  <script language="javascript" src="../lib/jquery-1.3.2.js"></script>
+  <script language="javascript" src="../src/jquery-twitter.js"></script>
+  <style type="text/css">
+	  #current, #weekly, #daily{
+		  width: 300px;
+		  float: left; 
+		  margin: 5px;
+		  padding: 4px;
+		  color: #000;
+		  background-color: #555;
+		  border: 1px solid #ccc;
+	  }
+	  .trend{
+		  background: #eee;
+		  color: #555;
+		  padding: 4px;
+		  margin: 10px;
+	  }
+	  .trend h3{
+		  color: green;
+		  background: black;
+		  display: block;
+		  margin: 3px;
+		  padding: 3px;
+	  }
+  </style>
+ </head>
+ <body>
+  <script language="javascript">
+    $(function(){
+
+	$.twitter.current(function(data){
+		printTrends('current', 'Current Trends', data);
+	});
+	$.twitter.weekly(function(data){
+		printTrends('weekly', 'Weekly Trends', data);
+	});
+	$.twitter.daily(function(data){
+		printTrends('daily', 'Daily Trends', data);
+	});
+	function printTrends(id, name, data){
+		var pane = $('#'+id);
+		pane.html('<h2>'+name+'</h2>');
+		for(var k in data.trends){
+			var s = '<div class="trend"><h3>As of ' + k +'</h3>'
+			for(var i = 0; i < data.trends[k].length; i++){
+				var trend = data.trends[k][i];
+				s+= '<p>'+trend.name+'</p>';
+			}
+			s+='</div>';
+			pane.append(s);
+		}
+	}
+     });
+  </script>
+	
+  <div id="current">
+  </div>
+  <div id="weekly">
+  </div>
+  <div id="daily">
+  </div>
+
+  </div>
+ </body>
+</html>
+
