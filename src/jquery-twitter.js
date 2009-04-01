@@ -20,14 +20,30 @@
 	function buildUrl(term, data){
 		var reqUrl = searchUrl + "?q=" + term + "&callback=?";
 		for ( var key in data) {
-			if (key != 'live')
-				reqUrl += "&" + key + "=" + data[key];
+			if (key == 'geocode'){
+                            reqUrl += '&gecode='+data.geocode.lat+'%2C'+data.geocode.lon+'%2C'+data.geocode.radius;
+                        }else{
+			    reqUrl += "&" + key + "=" + data[key];
+                        }
 		} 
 		return reqUrl;
 	}
 	
 	try {
 		jQuery.twitter = {};
+                jQuery.twitter.trends = function(report, date, callabck){
+                    var reqUrl = 'http://search.twitter.com/trends/'+report+'.json';
+                    if(jQuery.isFunction(date)){
+                            callback = date;
+                    }else{
+                        reqUrl += '?date='+date;
+                    }
+                    jQuery.getJSON(reqUrl, callback);
+                };
+                $(['current', 'daily', 'weekly']).each(function(){
+                        var type = this;
+                        jQuery.twitter[this] = function(date,callback){jQuery.twitter.trends(type, date, callback);};
+                });
 		jQuery.twitter.liveSearch = function(term, data, callback){
 			var control = new Controller();
 			searches['last_id'+term] = 0;
