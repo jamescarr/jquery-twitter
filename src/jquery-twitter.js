@@ -2,8 +2,10 @@
 ( function() {
 	var searches = {};
 	var cache = {};
-	var searchUrl = "http://search.twitter.com/search.json";
-	
+	var SEARCH_URL = "http://search.twitter.com/search.json";
+        var TRENDS_URL = "http://search.twitter.com/trends/";
+	var USER_TIMELINE_URL = 'http://twitter.com/statuses/user_timeline.json';
+	var PUBLIC_TIMELINE_URL = 'http://twitter.com/statuses/public_timeline.json';
 	function Controller(){
 		this.handler = null;
 		this.paused = false;
@@ -17,8 +19,10 @@
 	Controller.prototype.continueFeed = function(){
 		this.pause = false
 	}
+
+
 	function buildUrl(term, data){
-		var reqUrl = searchUrl + "?q=" + term + "&callback=?";
+		var reqUrl = SEARCH_URL + "?q=" + term + "&callback=?";
 		for ( var key in data) {
 			if (key == 'geocode'){
                             reqUrl += '&gecode='+data.geocode.lat+'%2C'+data.geocode.lon+'%2C'+data.geocode.radius;
@@ -31,8 +35,12 @@
 	
 	try {
 		jQuery.twitter = {};
+                jQuery.twitter.public_timeline = function(callback){
+                   var reqUrl = PUBLIC_TIMELINE_URL + "?callback=?";
+                   $.getJSON(reqUrl, callback);
+                };
                 jQuery.twitter.trends = function(report, date, callabck){
-                    var reqUrl = 'http://search.twitter.com/trends/'+report+'.json?callback=?';
+                    var reqUrl = TRENDS_URL+report+'.json?callback=?';
                     if(jQuery.isFunction(date)){
                             callback = date;
                     }else{
