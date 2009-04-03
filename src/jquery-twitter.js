@@ -6,6 +6,7 @@
         var TRENDS_URL = "http://search.twitter.com/trends/";
 	var USER_TIMELINE_URL = 'http://twitter.com/statuses/user_timeline.json';
 	var PUBLIC_TIMELINE_URL = 'http://twitter.com/statuses/public_timeline.json';
+        var SPECIFIC_TWEET_URL = 'http://twitter.com/statuses/show/%id%.json';
 	function Controller(){
 		this.handler = null;
 		this.paused = false;
@@ -16,6 +17,12 @@
 
 	try {
 		jQuery.twitter = {
+                        show_status: function(id, callback){
+                           var url = SPECIFIC_TWEET_URL.replace('%id%', id)+'?callback=?';
+
+                           $.getJSON(url, callback);
+                        },
+
 			user_timeline: function(user, data, callback){
                     		var url = USER_TIMELINE_URL + '?screen_name='+user+'&callback=?';
                                 if(jQuery.isFunction(data)){

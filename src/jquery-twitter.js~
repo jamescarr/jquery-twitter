@@ -6,6 +6,7 @@
         var TRENDS_URL = "http://search.twitter.com/trends/";
 	var USER_TIMELINE_URL = 'http://twitter.com/statuses/user_timeline.json';
 	var PUBLIC_TIMELINE_URL = 'http://twitter.com/statuses/public_timeline.json';
+        var SPECIFIC_TWEET_URL = 'http://twitter.com/statuses/show/?.format';
 	function Controller(){
 		this.handler = null;
 		this.paused = false;
@@ -16,8 +17,19 @@
 
 	try {
 		jQuery.twitter = {
-			user_timeline: function(user, callback){
+                        show_status: function(id, callback){
+                           var url = SPECIFIC_TWEET_URL.replace('?', id);
+                           $.getJSON(url+'?callback=?', callback);
+                        },
+			user_timeline: function(user, data, callback){
                     		var url = USER_TIMELINE_URL + '?screen_name='+user+'&callback=?';
+                                if(jQuery.isFunction(data)){
+                                    callback = data;
+                                }else{
+                                    for(var k in data){
+                                        url += '&'+k+'='+data[k];
+                                    }
+                                }
 		                    $.getJSON(url, callback);
 	                },
 			public_timeline: function(callback){
@@ -52,7 +64,7 @@
 					callback = data;
 					data = {};
 				}
-				jQuery.getJSON(buildUrl(term, data), callback);
+				jQuery.getJSON(buildSearchUrl(term, data), callback);
 			}
 		};
                 $(['current', 'daily', 'weekly']).each(function(){
