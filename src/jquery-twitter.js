@@ -13,15 +13,58 @@
 	Controller.prototype.stop = function(){
 		clearInterval(this.handler);
 	};
-	Controller.prototype.pause = function(){
-		this.paused = true;
-	}
-	Controller.prototype.continueFeed = function(){
-		this.pause = false
+
+	try {
+		jQuery.twitter = {
+			user_timeline: function(user, callback){
+                    		var url = USER_TIMELINE_URL + '?screen_name='+user+'&callback=?';
+		                    $.getJSON(url, callback);
+	                },
+			public_timeline: function(callback){
+				var reqUrl = PUBLIC_TIMELINE_URL + "?callback=?";
+				$.getJSON(reqUrl, callback);
+			},
+			trends: function(report, date, callabck){
+				var reqUrl = TRENDS_URL+report+'.json?callback=?';
+				if(jQuery.isFunction(date)){
+					callback = date;
+				}else{
+					reqUrl += '&date='+date;
+				}
+				jQuery.getJSON(reqUrl, callback);
+			},
+			liveSearch: function(term, data, callback){
+				var control = new Controller();
+				searches['last_id'+term] = 0;
+				control.handler = setInterval(function(){
+					data.since_id = searches['last_id'+term];
+					jQuery.twitter.search(term, data, function(resp){
+						var results = resp.results;
+						if(results.length > 0){
+							searches['last_id'+term] = results[0].id+1;
+							callback.call(control, resp);
+						}
+					});
+				}, 2000);
+			},
+			search: function(term, data, callback) {
+				if (jQuery.isFunction(data)) {
+					callback = data;
+					data = {};
+				}
+				jQuery.getJSON(buildSearchUrl(term, data), callback);
+			}
+		};
+                $(['current', 'daily', 'weekly']).each(function(){
+                        var type = this;
+                        jQuery.twitter[this] = function(callback){jQuery.twitter.trends(type, callback);};
+                });
+
+	} catch (e) {
+		throw new Exception('jQuery is not defined!');
 	}
 
-
-	function buildUrl(term, data){
+	function buildSearchUrl(term, data){
 		var reqUrl = SEARCH_URL + "?q=" + term + "&callback=?";
 		for ( var key in data) {
 			if (key == 'geocode'){
@@ -31,54 +74,5 @@
                         }
 		} 
 		return reqUrl;
-	}
-	
-	try {
-		jQuery.twitter = {};
-                jQuery.twitter.user_timeline = function(user, callback){
-                    var url = USER_TIMELINE_URL + '?screen_name='+user+'&callback=?';
-                    $.getJSON(url, callback);
-                }
-                jQuery.twitter.public_timeline = function(callback){
-                   var reqUrl = PUBLIC_TIMELINE_URL + "?callback=?";
-                   $.getJSON(reqUrl, callback);
-                };
-                jQuery.twitter.trends = function(report, date, callabck){
-                    var reqUrl = TRENDS_URL+report+'.json?callback=?';
-                    if(jQuery.isFunction(date)){
-                            callback = date;
-                    }else{
-                        reqUrl += '&date='+date;
-                    }
-                    jQuery.getJSON(reqUrl, callback);
-                };
-                $(['current', 'daily', 'weekly']).each(function(){
-                        var type = this;
-                        jQuery.twitter[this] = function(callback){jQuery.twitter.trends(type, callback);};
-                });
-		jQuery.twitter.liveSearch = function(term, data, callback){
-			var control = new Controller();
-			searches['last_id'+term] = 0;
-			control.handler = setInterval(function(){
-				data.since_id = searches['last_id'+term];
-				jQuery.twitter.search(term, data, function(resp){
-					var results = resp.results;
-					if(results.length > 0){
-						searches['last_id'+term] = results[0].id+1;
-						callback.call(control, resp);
-					}
-				});
-			}, 5000);
-			
-		};
-		jQuery.twitter.search = function(term, data, callback) {
-			if (jQuery.isFunction(data)) {
-				callback = data;
-				data = {};
-			}
-			jQuery.getJSON(buildUrl(term, data), callback);
-		};
-	} catch (e) {
-		throw new Exception('jQuery is not defined!');
 	}
 })();
