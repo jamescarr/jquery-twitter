@@ -35,6 +35,10 @@
 	
 	try {
 		jQuery.twitter = {};
+                jQuery.twitter.user_timeline = function(user, callback){
+                    var url = USER_TIMELINE_URL + '?screen_name='+user+'&callback=?';
+                    $.getJSON(url, callback);
+                }
                 jQuery.twitter.public_timeline = function(callback){
                    var reqUrl = PUBLIC_TIMELINE_URL + "?callback=?";
                    $.getJSON(reqUrl, callback);
