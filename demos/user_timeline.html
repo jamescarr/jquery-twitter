@@ -5,20 +5,29 @@
   <script type="text/javascript" src="../src/jquery-twitter.js"></script>
 
  <script type="text/javascript">
-    $(function(){
-        $.twitter.user_timeline('crazybob', function(response){
-            $('#timeline').css('background', '#fff');
+     $(function(){
+             
+        $.twitter.user_timeline('ev', function(response){
             $(response).each(function(){
                 $('#timeline').append('<p style="border: 1px solid #000; padding:2px;margin:2px;display: block;"><strong>'+this.user.name +': </strong> '+this.text+'</p>');
             });
         });
 
+        $.twitter.user_timeline('crazybob', {page: 3}, function(response){
+            $(response).each(function(){
+                $('#withOptions').append('<p style="border: 1px solid #000; padding:2px;margin:2px;display: block;"><strong>'+this.user.name +': </strong> '+this.text+'</p>');
+            });
+        });
     });
   </script>
  </head>
  <body>
-  
+
+  <h3>Just viewing a timeline</h3> 
   <div id="timeline">
+  </div>
+  <h3>Timeline with options</h3>
+  <div id="withOptions">
   </div>
   	
   	

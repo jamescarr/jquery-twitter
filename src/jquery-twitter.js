@@ -16,8 +16,15 @@
 
 	try {
 		jQuery.twitter = {
-			user_timeline: function(user, callback){
+			user_timeline: function(user, data, callback){
                     		var url = USER_TIMELINE_URL + '?screen_name='+user+'&callback=?';
+                                if(jQuery.isFunction(data)){
+                                    callback = data;
+                                }else{
+                                    for(var k in data){
+                                        url += '&'+k+'='+data[k];
+                                    }
+                                }
 		                    $.getJSON(url, callback);
 	                },
 			public_timeline: function(callback){
