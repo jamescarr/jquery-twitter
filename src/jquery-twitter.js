@@ -1,25 +1,41 @@
 
 ( function() {
-	var searches = {};
-	var cache = {};
-	var controllers = {};
 	var SEARCH_URL = "http://search.twitter.com/search.json";
 	var TRENDS_URL = "http://search.twitter.com/trends/";
 	var USER_TIMELINE_URL = 'http://twitter.com/statuses/user_timeline.json';
 	var PUBLIC_TIMELINE_URL = 'http://twitter.com/statuses/public_timeline.json';
 	var SPECIFIC_TWEET_URL = 'http://twitter.com/statuses/show/%id%.json';
-
-	function Controller(){
-		this.handler = null;
+	
+	function TwitterStream(term, callback, data){
+		this.term = term;
+		this.searchSpeed = 2000;
 		this.paused = false;
+		this.handler = null;
+		this.last_id = 0;
+		this.callback = callback;
+		this.data = data;
 	}
-	Controller.prototype.stop = function(){
+	TwitterStream.prototype.stop = function(){
 		clearInterval(this.handler);
 	};
+	TwitterStream.prototype.start = function(){	
+		var self = this;
+		this.handler = setInterval(function(){
+			if(self.paused)return;
+			self.data.since_id = self.last_id;
+			jQuery.twitter.search(self.term, self.data, function(resp){
+				var results = resp.results;
+				if(results.length > 0){
+					self.last_id = results[0].id+1;
+					self.callback.call(self, resp);
+				}
+			});
+		}, self.searchSpeed);
+	}
 	// bind events
 	var toggleStream = function(pause){
 		return function(e){
-			var control = controllers[e.term];
+			var control = jQuery.twitter.streams[e.term];
 			if(control)
 				control.paused = pause;
 			return false;
@@ -27,8 +43,18 @@
 	};
 	$().bind('twitter:pause', toggleStream(true));
 	$().bind('twitter:play', toggleStream(false));
+	$().bind('twitter:adjust_speed', function(e){
+		var stream = jQuery.twitter.streams[e.term];
+		if(stream){
+			stream.stop();
+			stream.searchSpeed = e.speed;
+			stream.start();
+		}			
+	});
 	try {
+
 		jQuery.twitter = {
+			streams:{},
 			show_status: function(id, callback){
 			   var url = SPECIFIC_TWEET_URL.replace('%id%', id)+'?callback=?';
 
@@ -60,22 +86,8 @@
 				jQuery.getJSON(reqUrl, callback);
 			},
 			liveSearch: function(term, data, callback){
-				controllers[term] = new Controller();
-				searches['last_id'+term] = 0;
-				controllers[term].handler = 
-				setInterval(function(){
-					if(controllers[term].paused){
-						return;
-					}
-					data.since_id = searches['last_id'+term];
-					jQuery.twitter.search(term, data, function(resp){
-						var results = resp.results;
-						if(results.length > 0){
-							searches['last_id'+term] = results[0].id+1;
-							callback.call(controllers[term], resp);
-						}
-					});
-				}, 2000);
+				jQuery.twitter.streams[term] = new TwitterStream(term, callback, data);
+				jQuery.twitter.streams[term].start();
 			},
 			search: function(term, data, callback) {
 				if (jQuery.isFunction(data)) {
@@ -86,8 +98,9 @@
 			}
 		};
         $(['current', 'daily', 'weekly']).each(function(){
-            jQuery.twitter[this] = function(callback){
-				jQuery.twitter.trends(this, callback);
+			var type = this;
+            jQuery.twitter[type] = function(callback){
+				jQuery.twitter.trends(type, callback);
 			};
 		});
 
