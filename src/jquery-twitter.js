@@ -42,10 +42,18 @@
 			return false;
 		};
 	};
-	
-	$().bind('twitter:pause', toggleStream(true));
-	$().bind('twitter:play', toggleStream(false));
-	$().bind('twitter:adjust_speed', function(e){
+	var toggleAllStreams = function(pause){
+		return function(){
+			jQuery(jQuery.twitter.streams).each(function(){
+				this.paused = pause;
+			});
+		};
+	}
+	jQuery().bind('twitter:pause_all', toggleAllStreams(true));
+	jQuery().bind('twitter:play_all', toggleAllStreams(false));
+	jQuery().bind('twitter:pause', toggleStream(true));
+	jQuery().bind('twitter:play', toggleStream(false));
+	jQuery().bind('twitter:adjust_speed', function(e){
 		var stream = jQuery.twitter.streams[e.term];
 		if(stream){
 			stream.stop();
