@@ -6,8 +6,8 @@
 	var PUBLIC_TIMELINE_URL = 'http://twitter.com/statuses/public_timeline.json';
 	var SPECIFIC_TWEET_URL = 'http://twitter.com/statuses/show/%id%.json';
 	
-	function TwitterStream(term, callback, data, method){
-		this.term = term;
+	function TwitterStream(name, callback, data, method){
+		this.name = name;
 		this.searchSpeed = 2000;
 		this.paused = false;
 		this.handler = null;
@@ -15,7 +15,6 @@
 		this.callback = callback;
 		this.data = data;
 		this.method = method;
-		this.current = {};
 	}
 	TwitterStream.prototype.stop = function(){
 		clearInterval(this.handler);
@@ -28,13 +27,6 @@
 			jQuery.twitter[self.method](self.term, self.data, function(resp){
 				var results = resp.results;
 				if(results.length > 0){
-					$(results).each(function(num){
-						if(self.current[this.id]){
-							results = results.splice(num, 1);
-						}else{
-							self.current[this.id] = '';
-						}
-					});
 					self.last_id = results[0].id+1;
 					self.callback.call(self, resp);
 				}
@@ -50,6 +42,7 @@
 			return false;
 		};
 	};
+	
 	$().bind('twitter:pause', toggleStream(true));
 	$().bind('twitter:play', toggleStream(false));
 	$().bind('twitter:adjust_speed', function(e){
@@ -59,6 +52,12 @@
 			stream.searchSpeed = e.speed;
 			stream.start();
 		}			
+	});
+	$().bind('twitter:change_search', function(e){
+		var stream = jQuery.twitter.streams[e.channel]
+		stream.stop();
+		stream.term = e.term;
+		stream.start();
 	});
 	try {
 
@@ -97,8 +96,10 @@
 				jQuery.getJSON(reqUrl, callback);
 			},
 			liveSearch: function(term, data, callback){
-				jQuery.twitter.streams[term] = new TwitterStream(term, callback, data, 'search');
-				jQuery.twitter.streams[term].start();
+				var channel = data.channel_name? data.channel_name : term;
+				jQuery.twitter.streams[channel] = new TwitterStream(channel, callback, data, 'search');
+				jQuery.twitter.streams[channel].term = term;
+				jQuery.twitter.streams[channel].start();
 			},
 			search: function(term, data, callback) {
 				if (jQuery.isFunction(data)) {

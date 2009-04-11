@@ -19,8 +19,8 @@
  </style>
   <script type="text/javascript">
     $(function(){
-		var search_term = 'deal filter:links';
-		$.twitter.liveSearch(search_term, {rpp:5}, function(resp){
+		var search_term = 'for sale filter:links';
+		$.twitter.liveSearch(search_term, {rpp:5, channel_name:'foobar'}, function(resp){
 			$(resp.results).each(function(){
 				$('#box1').prepend('<div class="foo" id="'+this.id+'">\
 					<a href="http://twitter.com/'+this.from_user+'"><img src="'+this.profile_image_url+'" width="75" height="75"></a>\
