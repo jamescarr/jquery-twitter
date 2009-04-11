@@ -6,7 +6,7 @@
 	var PUBLIC_TIMELINE_URL = 'http://twitter.com/statuses/public_timeline.json';
 	var SPECIFIC_TWEET_URL = 'http://twitter.com/statuses/show/%id%.json';
 	
-	function TwitterStream(term, callback, data){
+	function TwitterStream(term, callback, data, method){
 		this.term = term;
 		this.searchSpeed = 2000;
 		this.paused = false;
@@ -14,6 +14,8 @@
 		this.last_id = 0;
 		this.callback = callback;
 		this.data = data;
+		this.method = method;
+		this.current = {};
 	}
 	TwitterStream.prototype.stop = function(){
 		clearInterval(this.handler);
@@ -23,9 +25,16 @@
 		this.handler = setInterval(function(){
 			if(self.paused)return;
 			self.data.since_id = self.last_id;
-			jQuery.twitter.search(self.term, self.data, function(resp){
+			jQuery.twitter[self.method](self.term, self.data, function(resp){
 				var results = resp.results;
 				if(results.length > 0){
+					$(results).each(function(num){
+						if(self.current[this.id]){
+							results = results.splice(num, 1);
+						}else{
+							self.current[this.id] = '';
+						}
+					});
 					self.last_id = results[0].id+1;
 					self.callback.call(self, resp);
 				}
@@ -57,10 +66,8 @@
 			streams:{},
 			show_status: function(id, callback){
 			   var url = SPECIFIC_TWEET_URL.replace('%id%', id)+'?callback=?';
-
 			   $.getJSON(url, callback);
 			},
-
 			user_timeline: function(user, data, callback){
 				var url = USER_TIMELINE_URL + '?screen_name='+user+'&callback=?';
 	            if(jQuery.isFunction(data)){
@@ -72,6 +79,10 @@
 	            }
 		        $.getJSON(url, callback);
             },
+			live_public_timeline: function(callback){
+				jQuery.twitter.streams['public'] = new TwitterStream('', callback, {}, 'public_timeline');
+				jQuery.twitter.streams['public'].start();
+			},
 			public_timeline: function(callback){
 				var reqUrl = PUBLIC_TIMELINE_URL + "?callback=?";
 				$.getJSON(reqUrl, callback);
@@ -86,7 +97,7 @@
 				jQuery.getJSON(reqUrl, callback);
 			},
 			liveSearch: function(term, data, callback){
-				jQuery.twitter.streams[term] = new TwitterStream(term, callback, data);
+				jQuery.twitter.streams[term] = new TwitterStream(term, callback, data, 'search');
 				jQuery.twitter.streams[term].start();
 			},
 			search: function(term, data, callback) {
