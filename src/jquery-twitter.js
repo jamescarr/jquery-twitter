@@ -40,7 +40,7 @@
 	// bind events
 	var toggleStream = function(pause){
 		return function(e){
-			var control = jQuery.twitter.streams[e.term];
+			var control = jQuery.twitter.streams[e.channel];
 			if(control)
 				control.paused = pause;
 			return false;

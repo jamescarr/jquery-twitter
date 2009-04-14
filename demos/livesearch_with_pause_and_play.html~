@@ -37,10 +37,11 @@
 		
 		$('a').click(function(){
 			var event = jQuery.Event('twitter:'+$(this).attr('href'));
-			event.term = search_term;
+			event.channel = 'foobar';
 			$().trigger(event);
 			return false;
 		});
+		
 	});
   </script>
 
