@@ -11,11 +11,14 @@
 		this.searchSpeed = 2000;
 		this.paused = false;
 		this.handler = null;
-		this.last_id = 0;
 		this.callback = callback;
 		this.data = data;
 		this.method = method;
-	}
+    this.getSinceId = function(str){
+      if(str.indexOf('since_id') > -1)
+        return str.match(/since_id=(.+)&/)[1];
+    };
+	}  
 	TwitterStream.prototype.stop = function(){
 		clearInterval(this.handler);
 	};
@@ -23,11 +26,12 @@
 		var self = this;
 		this.handler = setInterval(function(){
 			if(self.paused)return;
-			self.data.since_id = self.last_id;
+      
 			jQuery.twitter[self.method](self.term, self.data, function(resp){
 				var results = resp.results;
+        self.data.since_id = self.getSinceId(resp.refresh_url);
+        
 				if(results.length > 0){
-					self.last_id = results[0].id+1;
 					self.callback.call(self, resp);
 				}
 			});
