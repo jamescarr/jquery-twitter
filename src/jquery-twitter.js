@@ -72,7 +72,6 @@
 		stream.start();
 	});
 	try {
-
 		jQuery.twitter = {
 			streams:{},
 			show_status: function(id, callback){
@@ -136,11 +135,11 @@
 		var reqUrl = SEARCH_URL + "?q=" + term + "&callback=?";
 		for ( var key in data) {
 			if (key == 'geocode'){
-                            reqUrl += '&gecode='+data.geocode.lat+'%2C'+data.geocode.lon+'%2C'+data.geocode.radius;
-                        }else{
-			    reqUrl += "&" + key + "=" + data[key];
-                        }
-		} 
+        reqUrl += '&gecode='+data.geocode.lat+'%2C'+data.geocode.lon+'%2C'+data.geocode.radius;
+      }else{
+        reqUrl += "&" + key + "=" + data[key];
+      }
+    } 
 		return reqUrl;
 	}
 })();
